@@ -13,7 +13,7 @@ struct Pair {
 
 int N;
 
-int sol() {
+void bfs() {
     int cnt;
     map<int, int> isvisit;
     queue<Pair> q;
@@ -23,7 +23,7 @@ int sol() {
     while (!q.empty()) {
         int n = q.front().n; 
         cnt = q.front().d; q.pop();
-        if (n==1) return cnt;
+        if (n==1) cout << cnt;
         if (n / 3 > 0 && n%3==0 && isvisit[n/3] == 0) {
             q.push(Pair(n/3, cnt+1));
             isvisit[n/3] = 1;
@@ -37,7 +37,19 @@ int sol() {
             isvisit[n-1] = 1;
         }
     }
-    return -1;
+}
+
+void dp() {
+    int arr[1000001];
+
+    arr[1] = 0;
+    for (int i=2;i<=N;i++) {
+        arr[i] = arr[i-1] + 1;
+        if (i%2 == 0) arr[i] = min(arr[i], arr[i/2]+1);
+        if (i%3 == 0) arr[i] = min(arr[i], arr[i/3]+1);
+    }
+
+    cout << arr[N];
 }
 
 int main() {
@@ -46,5 +58,6 @@ int main() {
     cout.tie(0);
 
     cin >> N;
-    cout << sol();
+    // bfs();
+    dp();
 }
