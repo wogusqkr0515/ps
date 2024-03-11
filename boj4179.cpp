@@ -1,228 +1,100 @@
-// #include <iostream>
-// #include <vector>
-// #include <queue>
-// #include <string>
-// using namespace std;
-
-// int R,C;
-// vector<string> arr;  // 입력 미로
-// int dx[4] = {0, 1, 0, -1};
-// int dy[4] = {1, 0, -1, 0};
-
-// struct Coordinate {
-//     int r,c,m;
-//     Coordinate(int row, int col, int min): r(row), c(col), m(min) {};
-// };
-
-// int bfs() {
-//     queue<Coordinate> jq, fq; // 불, 지훈이 bfs 큐
-//     char J, F, can;
-//     // 문자를 변수로 선언
-//     J = 'J'; F = 'F'; can = '.';
-
-//     // 초기 위치 세팅
-//     for (int i=0;i<R;i++) {
-//         for (int j=0;j<C;j++) {
-//             if (arr[i][j] == J) jq.push(Coordinate(i,j,0));
-//             if (arr[i][j] == F) fq. push(Coordinate(i,j,0));
-//         }
-//     }
-
-//     int curJR, curJC, curJM, curFR, curFC, curFM;
-//     curJM = -1;
-
-//     while(!jq.empty() || !fq.empty()) {
-//         // 제일 처음 지훈이, 불 위치 및 시간 세팅
-//         if (curJM == -1) {
-//             // 지훈이는 반드시 하나 존재
-//             curJR = jq.front().r; curJC = jq.front().c; curJM = jq.front().m; jq.pop(); 
-//             // 처음 위치가 탈출 가능이면 바로 탈출
-//             if (curJR == 0 || curJC == 0 || curJR == R-1 || curJC == C-1) return curJM+1;
-//             // 불은 존재하지 않을 수도 있음
-//             if (!fq.empty()) { curFR = fq.front().r; curFC = fq.front().c; curFM = fq.front().m; fq.pop(); }
-//         }
-        
-//         // 불 부터 bfs 
-//         // 불의 큐가 비워지기 전이거나 불의 시간이 지훈이 시간 다음이 될때까지
-//         do {
-//             for (int i=0;i<4;i++) {
-//                 int nextFR, nextFC;
-//                 nextFR = curFR + dx[i]; nextFC = curFC + dy[i];
-//                 if (nextFR >=0 && nextFR <R && nextFC >=0 && nextFC < C) {
-//                     if (arr[nextFR][nextFC] == can) {
-//                         arr[nextFR][nextFC] = F;
-//                         fq.push(Coordinate(nextFR, nextFC, curFM+1));
-//                     }
-//                 }
-//             }
-
-//             if (!fq.empty()) { curFR = fq.front().r; curFC = fq.front().c; curFM = fq.front().m; fq.pop(); }
-//             else { curFR = -10; curFC = -10; break;}
-//         } while(curJM == curFM);
-
-//         // 지훈이 bfs
-//         // 지훈이 큐가 비워지기 전이거나 시간이 불보다 작은 동안
-//         // 불이 더이상 번지지 않는 경우
-//         while (curJM < curFM || fq.empty()) {
-//             for (int i=0;i<4;i++) {
-//                 int nextJR, nextJC;
-//                 nextJR = curJR + dx[i]; nextJC = curJC + dy[i];
-//                 if (nextJR >=0 && nextJR <R && nextJC >=0 && nextJC < C) {
-//                     if (arr[nextJR][nextJC] == can) {
-//                         arr[nextJR][nextJC] = J;
-//                         jq.push(Coordinate(nextJR, nextJC, curJM+1));
-//                     }
-//                 }
-//             }
-
-//             if (!jq.empty()) { curJR = jq.front().r; curJC = jq.front().c; curJM = jq.front().m; jq.pop(); }
-//             else { curJR = -10; curJC = -10; break; }
-
-//             if (curJR == 0 || curJC == 0 || curJR == R-1 || curJC == C-1) return curJM+1;
-//         }
-//     }
-//     return -1;
-// }
-
-// int main() {
-//     string val;
-//     int answer;
-
-//     cin >> R >> C;
-//     for (int i=0;i<R;i++) {
-//         cin >> val;
-//         arr.push_back(val);
-//     }
-//     answer = bfs();
-//     if (answer == -1) cout << "IMPOSSIBLE" << endl;
-//     else cout << answer << endl;
-
-//     // 결과 확인용
-//     // for (int i=0;i<R;i++) {
-//     //     cout << arr[i] << endl;
-//     // }
-// }
-
-
-
-
-
 #include <iostream>
 #include <vector>
-#include <queue>
 #include <string>
+#include <cstring>
+#include <queue>
+#include <algorithm>
+
 using namespace std;
 
-int R,C;
-vector<vector<int>> minute;
-vector<string> arr;  // 입력 미로
-int dx[4] = {0, 1, 0, -1};
-int dy[4] = {1, 0, -1, 0};
-
-struct Coordinate {
-    int r,c,m;
-    Coordinate(int row, int col, int min): r(row), c(col), m(min) {};
+struct Pair {
+    int r,c, d;
+    Pair(int row, int col, int depth): r(row), c(col), d(depth) {};
 };
 
-int bfs() {
-    vector<int> minIter;
-    queue<Coordinate> jq, fq; // 불, 지훈이 bfs 큐
-    char J, F, can;
-    // 문자를 변수로 선언
-    J = 'J'; F = 'F'; can = '.';
+int R, C;
+vector<string> graph;
+bool visited[1000][1000];
+int dx[4] = {1, 0, -1, 0};
+int dy[4] = {0, 1, 0, -1};
+char W, S, J, F;
 
-    // 초기 위치 세팅
+void bfs() {
+    int js, fs;
+    queue<Pair> jq, fq;
     for (int i=0;i<R;i++) {
         for (int j=0;j<C;j++) {
-            if (arr[i][j] == J) { jq.push(Coordinate(i,j,0)); minIter.push_back(10000); }
-            else if (arr[i][j] == F) { fq. push(Coordinate(i,j,0)); minIter.push_back(20000); }
-            else minIter.push_back(0);
+            if (graph[i][j] == J) {
+                visited[i][j] = true;
+                graph[i][j] = S;
+                jq.push(Pair(i,j,0));
+            }
+            if (graph[i][j] == F) {
+                fq.push(Pair(i,j,0));
+            }
         }
-        minute.push_back(minIter);
-        minIter.clear();
     }
 
-    int curJR, curJC, curJM, curFR, curFC, curFM;
-    curJM = -1;
-
-    while(!jq.empty() || !fq.empty()) {
-        // 제일 처음 지훈이, 불 위치 및 시간 세팅
-        if (curJM == -1) {
-            // 지훈이는 반드시 하나 존재
-            curJR = jq.front().r; curJC = jq.front().c; curJM = jq.front().m; jq.pop(); 
-            // 처음 위치가 탈출 가능이면 바로 탈출
-            if (curJR == 0 || curJC == 0 || curJR == R-1 || curJC == C-1) return curJM+1;
-            // 불은 존재하지 않을 수도 있음
-            if (!fq.empty()) { curFR = fq.front().r; curFC = fq.front().c; curFM = fq.front().m; fq.pop(); }
-            else { curFR = -10; curFC = -10; curFM = -10; }
-        }
-        
-        // 불 부터 bfs 
-        // 불의 큐가 비워지기 전이거나 불의 시간이 지훈이 시간 다음이 될때까지
-        while(curJM == curFM) {
+    js = 0; fs = 0;
+    while (!jq.empty()) {
+        while (!fq.empty()) {
+            int fr, fc;
+            fr = fq.front().r; fc = fq.front().c; fs = fq.front().d; 
+            if (fs>js) break;
+            fq.pop();
             for (int i=0;i<4;i++) {
-                int nextFR, nextFC;
-                nextFR = curFR + dx[i]; nextFC = curFC + dy[i];
-                if (nextFR >=0 && nextFR <R && nextFC >=0 && nextFC < C) {
-                    if (arr[nextFR][nextFC] == can ) { // || (minute[nextFR][nextFC] != 0 && minute[nextFR][nextFC] - 10000 != curFM)
-                        arr[nextFR][nextFC] = F;
-                        fq.push(Coordinate(nextFR, nextFC, curFM+1));
-                        minute[nextFR][nextFC] = 20000+curFM+1;
+                int fnr, fnc;
+                fnr = fr + dy[i]; fnc = fc + dx[i];
+                if (fnr>=0 && fnc>=0 && fnr<R && fnc<C) {
+                    if (graph[fnr][fnc] == S) {
+                        graph[fnr][fnc] = F;
+                        fq.push(Pair(fnr, fnc, fs+1));
                     }
                 }
             }
-
-            if (!fq.empty()) { curFR = fq.front().r; curFC = fq.front().c; curFM = fq.front().m; fq.pop(); }
-            else { curFR = -10; curFC = -10; break; }
         }
 
-        // 지훈이 bfs
-        // 지훈이 큐가 비워지기 전이거나 시간이 불보다 작은 동안
-        // 불이 더이상 번지지 않는 경우
-        while (curJM < curFM || (fq.empty() && !jq.empty())) {
+        while (true) {
+            if (jq.empty()) break;
+            if (!fq.empty() && fs<=js) break;
+            int jr, jc;
+            jr= jq.front().r; jc = jq.front().c; js = jq.front().d; jq.pop();
+
+            if (jr==0 || jc==0 || jr==R-1 || jc==C-1) {
+                cout << js+1 << '\n';
+                return;
+            }
+
             for (int i=0;i<4;i++) {
-                int nextJR, nextJC;
-                nextJR = curJR + dx[i]; nextJC = curJC + dy[i];
-                if (nextJR >=0 && nextJR <R && nextJC >=0 && nextJC < C) {
-                    if (arr[nextJR][nextJC] == can) {
-                        arr[nextJR][nextJC] = J;
-                        jq.push(Coordinate(nextJR, nextJC, curJM+1));
-                        minute[nextJR][nextJC] = 10000+curJM+1;
+                int jnr, jnc;
+                jnr = jr + dy[i]; jnc = jc + dx[i];
+                if (jnr>=0 && jnc>=0 && jnr<R && jnc<C) {
+                    if (!visited[jnr][jnc] && graph[jnr][jnc] == S) {
+                        visited[jnr][jnc] = true;
+                        jq.push(Pair(jnr, jnc, js+1));
                     }
                 }
             }
-
-            if (!jq.empty()) { curJR = jq.front().r; curJC = jq.front().c; curJM = jq.front().m; jq.pop(); }
-            else { curJR = -10; curJC = -10; break; }
-
-            if (curJR == 0 || curJC == 0 || curJR == R-1 || curJC == C-1) return curJM+1;
         }
     }
-    return -1;
+
+    cout << "IMPOSSIBLE";
+    return;
 }
 
 int main() {
-    string val;
-    int answer;
+    ios::sync_with_stdio(0);
+    cin.tie(0);
 
+    string inp;
+    W = '#'; S = '.';
+    J = 'J'; F = 'F';
     cin >> R >> C;
     for (int i=0;i<R;i++) {
-        cin >> val;
-        arr.push_back(val);
+        cin >> inp;
+        graph.push_back(inp);
     }
-    answer = bfs();
-    if (answer == -1) cout << "IMPOSSIBLE" << endl;
-    else cout << answer << endl;
 
-    // 결과 확인용
-    for (int i=0;i<R;i++) {
-        cout << arr[i] << endl;
-    }
-    cout << " 이제부터 시간 미로 " << endl;
-    for (int i=0;i<R;i++) {
-        for (int j=0;j<C;j++) {
-            cout << minute[i][j] << " ";
-        }
-        cout << endl;
-    }
+    memset(visited, false, sizeof(visited));
+    bfs();
 }
