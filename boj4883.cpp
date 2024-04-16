@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int N, INF = 1e9;
+int N;
 int dp[100001][3], arr[100001][3];
 
 void sol(int idx) {
@@ -26,10 +26,8 @@ int main() {
     while (true) {
         cin >> N;
         if (N==0) break;
-        for (int i=0;i<N;i++) {
+        for (int i=0;i<N;i++) 
             cin >> arr[i][0] >> arr[i][1] >> arr[i][2];
-            dp[i][0]=INF; dp[i][1]=INF; dp[i][2]=INF;
-        }
 
         sol(idx++);
     }
