@@ -3,10 +3,12 @@
 
 using namespace std;
 
+typedef long long ll;
+
 int N;
 int arr[100000];
 
-void sol() {
+void twopointer() {
     int lo, hi, first, second, ans;
     lo = 0; hi = N-1; ans = 2e9+100;
 
@@ -26,6 +28,31 @@ void sol() {
     cout << first << ' ' << second;
 }
 
+void binary() {
+    int lo, mid, hi, first, second, ans = 2e9+100;
+    
+    for (int i=0;i<N-1;i++) {
+        int flag = arr[i];
+        lo =i; hi = N;
+
+        while (lo+1<hi) {
+            mid = (lo+hi)/2;
+            int cur = flag + arr[mid];
+
+            if (ans > abs(cur)) {
+                ans = abs(cur);
+                first = flag;
+                second = arr[mid];
+            }
+
+            if (cur>0) hi = mid;
+            else lo = mid;
+        }
+    }
+
+    cout << first << ' ' << second;
+}
+
 int main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
@@ -34,5 +61,6 @@ int main() {
     for (int i=0;i<N;i++) 
         cin >> arr[i];
     
-    sol();
+    // twopointer();
+    binary();
 }
